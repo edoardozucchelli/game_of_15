@@ -11,13 +11,6 @@ dict_key = {
     'down': 274
 }
 
-
-@pytest.fixture
-def puzzle():
-    screen = Puzzle(4, 4, 100)
-    return screen
-
-
 dict_puzzle = {
     (0, 0): 0,  (1, 0): 1,  (2, 0): 2,  (3, 0): 3,
     (0, 1): 4,  (1, 1): 5,  (2, 1): 6,  (3, 1): 7,
@@ -31,6 +24,15 @@ dict_puzzle_after_perm = {
     (0, 2): 8,  (1, 2): 9,  (2, 2): 10, (3, 2): 11,
     (0, 3): 12, (1, 3): 13, (2, 3): 15, (3, 3): 14
 }
+
+
+@pytest.fixture
+def puzzle():
+    screen = Puzzle(4, 4, 100)
+    screen.squares = dict_puzzle
+    screen.blank_square = (3, 3)
+    return screen
+
 
 grid_width = 4
 grid_height = 4
@@ -53,9 +55,11 @@ class TestPuzzle:
         assert puzzle.solution == dict_puzzle
 
     def test_permute(self, puzzle):
+
         square_to_perm = (2, 3)
         puzzle.permute(square_to_perm)
 
+        print(puzzle.squares)
         assert puzzle.squares == dict_puzzle_after_perm
         assert puzzle.blank_square == (2, 3)
 

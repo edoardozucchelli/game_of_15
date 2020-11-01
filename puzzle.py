@@ -1,8 +1,13 @@
 import pygame
+from datetime import datetime
+
 import puzzle_config as c
+from grid_generator import create_legit_grid
 
 
 pygame.init()
+
+clock = pygame.time.Clock()
 
 
 class Screen:
@@ -21,16 +26,24 @@ class Puzzle:
         self.grid_height = grid_height
         self.square_size = square_size
         self.total_squares = grid_width*grid_height-1
+        self.total_moves = 0
 
-        self.squares = {
+        self.squares = create_legit_grid(self.grid_width, self.grid_height, self.total_squares)
+        self.blank_square = self.find_blank_pos()
+
+        self.solution = {
             (x, y): i
             for i, (x, y)
             in enumerate((x, y) for y in range(grid_height) for x in range(grid_width))
         }
 
-        self.blank_square = list(self.squares.keys())[-1]
-        self.solution = self.squares
+        self.time = None
         self.font = pygame.font.Font(None, 100)
+
+    def find_blank_pos(self):
+        for key, value in self.squares.items():
+            if value == self.total_squares:
+                return key
 
     def permute(self, square):
         self.squares[square], self.squares[self.blank_square] = self.squares[self.blank_square], self.squares[square]
@@ -58,7 +71,11 @@ class Puzzle:
         square_to_permute = self.square_to_permute(key)
 
         if self.is_in_grid(square_to_permute):
+            self.total_moves += 1
             self.permute(square_to_permute)
+
+            if self.total_moves == 1:
+                self.time = pygame.time.get_ticks()
 
     def draw(self, screen):
         for pos, num in self.squares.items():
@@ -81,6 +98,17 @@ class Game:
         self.screen = Screen(c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
         self.puzzle = Puzzle(grid_width=c.GRID_WIDTH, grid_height=c.GRID_HEIGHT, square_size=c.SIZE)
 
+    def restart(self):
+        return self.__init__()
+
+    def is_completed(self):
+        if self.puzzle.squares == self.puzzle.solution:
+            game_time = datetime.fromtimestamp(
+                (pygame.time.get_ticks() - self.puzzle.time)/1000).strftime('%M:%S.%f')
+            print("Puzzle completed in", self.puzzle.total_moves, "moves,", game_time, "minutes")
+
+            self.restart()
+
     def draw_objects(self):
         self.puzzle.draw(self.screen.screen)
 
@@ -90,6 +118,7 @@ class Game:
                 self.game_quit = True
             if event.type == pygame.KEYDOWN:
                 self.puzzle.event_handler(event)
+                self.is_completed()
 
     def game_loop(self):
         self.screen.screen.fill(c.SCREEN_COLOUR)
@@ -99,7 +128,6 @@ class Game:
 
 
 def main():
-    clock = pygame.time.Clock()
     fps = c.FPS
     game = Game()
 

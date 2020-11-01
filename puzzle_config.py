@@ -3,14 +3,14 @@ color_chart = {'black': (0, 0, 0),
                'blue': (0, 0, 255),
                'white': (255, 255, 255)}
 
-SCREEN_WIDTH = 500
-SCREEN_HEIGHT = 500
-SCREEN_COLOUR = color_chart['black']
-
 SIZE = 100
 
-GRID_WIDTH = 4
-GRID_HEIGHT = 4
+GRID_WIDTH = 3
+GRID_HEIGHT = 3
+
+SCREEN_WIDTH = SIZE * GRID_WIDTH
+SCREEN_HEIGHT = SIZE * GRID_HEIGHT
+SCREEN_COLOUR = color_chart['black']
 
 FPS = 30
 
