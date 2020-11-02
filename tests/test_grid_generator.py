@@ -1,12 +1,12 @@
-from grid_generator import (count_inversions,
-                            is_odd,
-                            is_even,
-                            pattern_is_legit,
-                            aggregate,
-                            blank_index,
-                            pattern_almost_solved,
-                            create_pattern,
-                            create_grid)
+from src.grid_generator import (count_inversions,
+                                is_odd,
+                                is_even,
+                                pattern_is_legit,
+                                aggregate,
+                                blank_index,
+                                pattern_almost_solved,
+                                create_pattern,
+                                create_grid)
 
 test_1 = [2, 3, 1, 0]
 test_2 = [1, 0, 3, 2]

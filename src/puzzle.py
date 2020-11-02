@@ -1,8 +1,8 @@
 import pygame
 from datetime import datetime
 
-import puzzle_config as c
-from grid_generator import create_legit_grid
+from src import puzzle_config as c
+from src.grid_generator import create_legit_grid
 
 
 pygame.init()
@@ -29,7 +29,7 @@ class Puzzle:
         self.total_moves = 0
 
         self.squares = create_legit_grid(self.grid_width, self.grid_height, self.total_squares)
-        self.blank_square = self.find_blank_pos()
+        self.blank_square = self.find_blank_position()
 
         self.solution = {
             (x, y): i
@@ -40,10 +40,15 @@ class Puzzle:
         self.time = None
         self.font = pygame.font.Font(None, 100)
 
-    def find_blank_pos(self):
+    def find_blank_position(self):
         for key, value in self.squares.items():
             if value == self.total_squares:
                 return key
+
+    def is_completed(self):
+        if self.squares == self.solution:
+            return True
+        return False
 
     def permute(self, square):
         self.squares[square], self.squares[self.blank_square] = self.squares[self.blank_square], self.squares[square]
@@ -101,16 +106,13 @@ class Game:
     def restart(self):
         return self.__init__()
 
-    def is_completed(self):
-        if self.puzzle.squares == self.puzzle.solution:
-            game_time = datetime.fromtimestamp(
-                (pygame.time.get_ticks() - self.puzzle.time)/1000).strftime('%M:%S.%f')
-            print("Puzzle completed in", self.puzzle.total_moves, "moves,", game_time, "minutes")
-
-            self.restart()
-
     def draw_objects(self):
         self.puzzle.draw(self.screen.screen)
+
+    def show_results(self):
+        game_time_millisecond = pygame.time.get_ticks() - self.puzzle.time
+        game_time_formatted = datetime.fromtimestamp(game_time_millisecond / 1000).strftime('%M:%S.%f')
+        print("Puzzle completed in", self.puzzle.total_moves, "moves,", game_time_formatted, "minutes")
 
     def event_loop(self):
         for event in pygame.event.get():
@@ -118,7 +120,9 @@ class Game:
                 self.game_quit = True
             if event.type == pygame.KEYDOWN:
                 self.puzzle.event_handler(event)
-                self.is_completed()
+                if self.puzzle.is_completed():
+                    self.show_results()
+                    self.restart()
 
     def game_loop(self):
         self.screen.screen.fill(c.SCREEN_COLOUR)
